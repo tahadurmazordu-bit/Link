@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Özel Sürpriz</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            text-align: center;
+            position: relative;
+        }
+
+        /* El Animasyonu */
+        #hand-container {
+            font-size: 120px;
+            animation: popIn 0.5s ease-in-out;
+        }
+
+        /* Fotoğraf Başlangıçta Gizli */
+        #link-image {
+            display: none;
+            max-width: 300px;
+            max-height: 80vh;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- El (Orta Parmak) Simgesi / SVG -->
+        <div id="hand-container">
+            <svg width="150" height="150" viewBox="0 0 24 24" fill="none" stroke="#ff4757" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 11V3.5a1.5 1.5 0 0 1 3 0V11"></path>
+                <path d="M13 10.5V2a1.5 1.5 0 0 1 3 0v8.5"></path>
+                <path d="M16 11V5a1.5 1.5 0 0 1 3 0v9.5"></path>
+                <path d="M7 13V7a1.5 1.5 0 0 1 3 0v6"></path>
+                <path d="M5 13.5V16a4 4 0 0 0 4 4h4a4 4 0 0 0 4-4v-2.5"></path>
+            </svg>
+        </div>
+
+        <!-- Gönderdiğin Fotoğraf (Base64 formatında gömülü) -->
+        <img id="link-image" src="" alt="Link Meyve Suyu">
+    </div>
+
+    <!-- Okkalı Ses Efekti (Web Audio API ile dış kaynak gerektirmeden üretilen sert ses) -->
+    <script>
+        function playSound() {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.3);
+
+            gain.gain.setValueAtTime(1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        // Sayfa açıldığında çalışacak mantık
+        window.onload = () => {
+            // Sesi patlat
+            setTimeout(() => {
+                try { playSound(); } catch(e) {}
+            }, 100);
+
+            // 1 saniye sonra eli kaldır, fotoğrafı getir
+            setTimeout(() => {
+                document.getElementById('hand-container').style.display = 'none';
+                
+                const img = document.getElementById('link-image');
+                // Yüklediğin fotoğrafı koda entegre ediyoruz
+                img.src = "data:image/jpeg;base64,..."; // Buraya görsel verisi gelecek veya aynı klasördeyse dosya yolu yazılabilir.
+                img.style.display = 'block';
+            }, 1000);
+        };
+    </script>
+</body>
+</html>
+
